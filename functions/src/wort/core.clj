@@ -1,7 +1,7 @@
-(ns hello.core
+(ns wort.core
   (:gen-class
    :methods [^:static [handler [String] String]]))
 
 (defn -handler
   [s]
-  (str "Hello " s " ツ"))
+  (str "Wort " s " ツ"))

@@ -1,4 +1,4 @@
-# hello
+# wort
 
 FIXME: description
 
@@ -10,7 +10,7 @@ Download from http://example.com/FIXME.
 
 FIXME: explanation
 
-    $ java -jar hello-0.1.0-standalone.jar [args]
+    $ java -jar wort-0.1.0-standalone.jar [args]
 
 ## Options
 
@@ -31,6 +31,3 @@ FIXME: listing of options this app accepts.
 ## License
 
 Copyright © 2017 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
