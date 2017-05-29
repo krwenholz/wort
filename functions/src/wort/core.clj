@@ -10,5 +10,5 @@
 
 (defn get_key_as_list
   [payload key]
-  (str/split (get payload key) #"\s|[\.\,\!\?]")
+  (str/split (get payload key) #"\s|[.,!?]")
 )
