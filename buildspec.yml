@@ -10,10 +10,11 @@ phases:
   build:
     commands:
       - echo Build started on `date`
+      - cd functions
       - lein uberjar
   post_build:
     commands:
       - echo Build completed on `date`
 artifacts:
   files:
-    - target/uberjar/wort-0.1.0-SNAPSHOT-standalone.jar
+    - functions/target/uberjar/wort-0.1.0-SNAPSHOT-standalone.jar
