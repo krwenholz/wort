@@ -40,7 +40,7 @@ Resources:
         S3Key:
           Ref: LambdaSourceJar
       Description: Frontend handler
-      Handler: lambda.handler
+      Handler: wort.core::handler
       MemorySize: 128
       Role:
         Fn::GetAtt:
