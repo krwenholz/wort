@@ -41,13 +41,13 @@ Resources:
           Ref: LambdaSourceJar
       Description: Frontend handler
       Handler: wort.core::handler
-      MemorySize: 128
+      MemorySize: 512
       Role:
         Fn::GetAtt:
         - LambdaRole
         - Arn
       Runtime: java8
-      Timeout: 10 # seconds
+      Timeout: 15 # seconds
   LambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -122,7 +122,7 @@ Resources:
             - "/invocations"
         IntegrationResponses:
         - ResponseTemplates:
-            application/json: "$input.json('$.body')"
+            application/json: "{\"salutation\": \"$input.body\"}"
           StatusCode: 200
         PassthroughBehavior: NEVER
         RequestTemplates:
