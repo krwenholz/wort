@@ -47,7 +47,7 @@ Resources:
         - LambdaRole
         - Arn
       Runtime: java8
-      Timeout: 3 # seconds
+      Timeout: 10 # seconds
   LambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -98,7 +98,7 @@ Resources:
         - RestApi
         - RootResourceId
       PathPart: auto_salutation
-  UsersGet:
+  AutoSalutationGet:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId:
@@ -127,7 +127,7 @@ Resources:
         PassthroughBehavior: NEVER
         RequestTemplates:
           application/json: |
-            {"parameters": "$input.params('name')"}
+            "$input.params('name')"
       RequestParameters:
         method.request.querystring.name: true
       MethodResponses:
