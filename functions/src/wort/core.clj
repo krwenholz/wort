@@ -10,7 +10,7 @@
 
 (defn get_key_as_vector
   [payload key]
-  (let [value (str/split (get payload key) #"\s|[.,!?]")]
+  (let [value (str/split (str/trim (get payload key)) #"\s+|[.,!?]+")]
     (do
       (println value)
       value)))
