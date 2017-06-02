@@ -8,7 +8,9 @@
   [s]
   (str "Wort " s " ツ"))
 
-(defn get_key_as_list
+(defn get_key_as_vector
   [payload key]
-  (str/split (get payload key) #"\s|[.,!?]")
-)
+  (let [value (str/split (get payload key) #"\s|[.,!?]")]
+    (do
+      (println value)
+      value)))
