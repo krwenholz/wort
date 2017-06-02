@@ -6,6 +6,6 @@
   (testing "FIXME, I fail."
     (is (= 1 1))))
 
-(deftest a-test
+(deftest get_key_as_vector
   (testing "splits on sporadic whitespace"
     (is (= ["is" "this"] (get_key_as_vector {"wat" "  is  this  "} "wat" )))))
