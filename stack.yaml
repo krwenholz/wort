@@ -1,0 +1,145 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Lambda and API Gateway
+Parameters:
+  LambdaSourceBucket:
+    Description: The name of the S3 bucket that contains the source code of your Lambda
+      function.
+    Type: String
+  LambdaSourceJar:
+    Description: The location and name of your source code .jar file.
+    Type: String
+    Default: lambda.jar
+Resources:
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: logs
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:*
+            Resource: arn:aws:logs:*:*:*
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: LambdaSourceBucket
+        S3Key:
+          Ref: LambdaSourceJar
+      Description: Frontend handler
+      Handler: wort.core::handler
+      MemorySize: 512
+      Role:
+        Fn::GetAtt:
+        - LambdaRole
+        - Arn
+      Runtime: java8
+      Timeout: 15 # seconds
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      FunctionName:
+        Fn::GetAtt:
+        - Lambda
+        - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+        - ''
+        - - 'arn:aws:execute-api:'
+          - Ref: AWS::Region
+          - ":"
+          - Ref: AWS::AccountId
+          - ":"
+          - Ref: RestApi
+          - "/*"
+  RestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: API Gateway Wort
+  AutoSalutationModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      ContentType: application/json
+      Name: AutoSalutation
+      RestApiId:
+        Ref: RestApi
+      Schema:
+        "$schema": http://json-schema.org/draft-04/schema#
+        title: AutoSalutation
+        type: object
+        additionalProperties: false
+        properties:
+          salutation:
+            type: string
+        required:
+        - salutation
+  AutoSalutationResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId:
+        Ref: RestApi
+      ParentId:
+        Fn::GetAtt:
+        - RestApi
+        - RootResourceId
+      PathPart: auto_salutation
+  AutoSalutationGet:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId:
+        Ref: RestApi
+      ResourceId:
+        Ref: AutoSalutationResource
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Join:
+          - ''
+          - - 'arn:aws:apigateway:'
+            - Ref: AWS::Region
+            - ":lambda:path/2015-03-31/functions/"
+            - Fn::GetAtt:
+              - Lambda
+              - Arn
+            - "/invocations"
+        IntegrationResponses:
+        - ResponseTemplates:
+            application/json: "{\"salutation\": \"$input.body\"}"
+          StatusCode: 200
+        PassthroughBehavior: NEVER
+        RequestTemplates:
+          application/json: |
+            "$input.params('name')"
+      RequestParameters:
+        method.request.querystring.name: true
+      MethodResponses:
+      - ResponseModels:
+          application/json:
+            Ref: AutoSalutationModel
+        StatusCode: 200
+      - ResponseModels:
+          application/json: Empty
+        StatusCode: 404
+Outputs:
+  ApiId:
+    Value:
+      Ref: RestApi
+
