@@ -8,9 +8,10 @@
   [s]
   (str "Wort " s " ツ"))
 
-(defn get_key_as_vector
+(defn get_words_from_key
   [payload key]
-  (let [value (str/split (str/trim (get payload key)) #"\s+|[.,!?]+")]
+  (let [value (filter
+                #(>= (count %) 1) (str/split (get payload key) #"\s+|[.,!?]+" ))]
     (do
       (println value)
       value)))

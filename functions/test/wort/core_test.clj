@@ -6,6 +6,11 @@
   (testing "FIXME, I fail."
     (is (= 1 1))))
 
-(deftest get_key_as_vector
-  (testing "splits on sporadic whitespace"
-    (is (= ["is" "this"] (get_key_as_vector {"wat" "  is  this  "} "wat" )))))
+(deftest _get_words_from_key
+  (testing "splits on various permutations"
+    (is (= ["a" "test"] (get_words_from_key {"key" "a test"} "key" )))
+    (is (= ["a" "test"] (get_words_from_key {"key" "  a  test  "} "key" )))
+    (is (= ["a" "test"] (get_words_from_key {"key" "a test!"} "key" )))
+    (is (= ["a" "test"] (get_words_from_key {"key" "a...test!"} "key" )))
+    (is (= ["a" "test"] (get_words_from_key {"key" " !!!!a...!!!!!test! "} "key" )))
+    (is (= ["This" "is" "a" "test"] (get_words_from_key {"key" "This, is a test!"} "key" )))))
