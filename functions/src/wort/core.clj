@@ -11,7 +11,7 @@
 (defn get_words_from_key
   [payload key]
   (let [value (filter
-                #(>= (count %) 1) (str/split (get payload key) #"[^\w]+" ))]
+                #(> (count %) 0) (str/split (get payload key) #"[^\w]+" ))]
     (do
       (println value)
       value)))
