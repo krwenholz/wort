@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/data.json "0.2.6"]
                  [com.amazonaws/aws-lambda-java-core "1.0.0"]]
+  :plugins [[lein-cljfmt "0.5.6"]]
   :main ^:skip-aot wort.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
