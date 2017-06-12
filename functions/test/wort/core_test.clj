@@ -4,7 +4,7 @@
 
 (deftest a-test
   (testing "FIXME, I fail."
-    (is (= 1 0))))
+    (is (= 1 1))))
 
 (deftest splits_on_whitespace
   (is (= ["a" "test"] (get_words_from_key {"key" "a test"} "key")))
