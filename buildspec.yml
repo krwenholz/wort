@@ -4,12 +4,15 @@ phases:
   install:
     commands:
       - echo Nothing to do in the install phase...
+      - SRC_HOME=$PWD
   pre_build:
     commands:
+      - cd $SRC_HOME
       - cd functions
       - lein test
   build:
     commands:
+      - cd $SRC_HOME
       - echo Build started on `date`
       - cd functions
       - lein uberjar
