@@ -1,0 +1,129 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: The Wort Pipeline
+Parameters:
+  ArtifactStoreBucket:
+    Type: String
+    Description: S3 bucket to use for artifacts. Just bucket Name; not URL. IAM user
+      should have access to the bucket.
+    Default: codepipeline-us-east-1-XXXXXXXXXXX
+  SourceOutputArtifacts:
+    Type: String
+    Description: A name for our source output artifacts.
+    Default: source-output
+  GitHubToken:
+    NoEcho: 'true'
+    Type: String
+    Description: Secret. It might look something like 9b189a1654643522561f7b3ebd44a1531a4287af
+      OAuthToken with access to Repo. Go to https://github.com/settings/tokens
+  GitHubUser:
+    Type: String
+    Description: GitHub UserName
+    Default: krwenholz
+  Repo:
+    Type: String
+    Description: GitHub Repo to pull from. Only the Name. not the URL
+    Default: wort
+  Branch:
+    Type: String
+    Description: Branch to use from Repo. Only the Name. not the URL
+    Default: master
+Resources:
+# TODO: define a stack to use stack.yaml
+# CodeDeploySimpleStack:
+#   Type: AWS::CloudFormation::Stack
+#   Properties:
+#     TemplateURL: https://s3.amazonaws.com/stelligent-public/cloudformation-templates/github/labs/codepipeline/codedeploy-deployment.json
+#     TimeoutInMinutes: '60'
+#     Parameters:
+#       # RoleArn:
+#       # RoFn::GetAtt:
+#       # Ro- CodeDeployEC2InstancesStack
+#       # Ro- Outputs.CodeDeployTrustRoleARN
+#       Bucket:
+#         Ref: ArtifactStoreBucket
+#       Key:
+#         Ref: stack.yaml
+  AppPipeline:
+#   DependsOn:
+#   - CodeDeploySimpleStack
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn:
+        Fn::Join:
+        - ''
+        - - 'arn:aws:iam::'
+          - Ref: AWS::AccountId
+          - ":role/AWS-CodePipeline-Service"
+      ArtifactStore:
+        Type: S3
+        Location:
+          Ref: ArtifactStoreBucket
+      Stages:
+      - Name: Source
+        Actions:
+        - InputArtifacts: []
+          Name: Source
+          ActionTypeId:
+            Category: Source
+            Owner: ThirdParty
+            Version: '1'
+            Provider: GitHub
+          OutputArtifacts:
+          - Name:
+              Ref: SourceOutputArtifacts
+          Configuration:
+            Owner:
+              Ref: GitHubUser
+            Repo:
+              Ref: Repo
+            Branch:
+              Ref: Branch
+            OAuthToken:
+              Ref: GitHubToken
+          RunOrder: 1
+      - Name: Build
+        Actions:
+        - Name: Build
+          ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Provider: CodeDeploy
+            Version: '1'
+          OutputArtifacts:
+          - Name: wort_build
+          InputArtifacts:
+          - Name:
+              Ref: SourceOutputArtifacts
+          Configuration:
+            ProjectName: wort
+          RunOrder: 1
+# TODO: deploy said stack in pipeline
+#     - Name: Production
+#       Actions:
+#       - Name: PromoteEnvironment
+#         ActionTypeId:
+#           Category: Deploy
+#           Owner: AWS
+#           Version: '1'
+#           Provider: CloudFormation
+#         InputArtifacts:
+#         - Name: wort_build
+#         OutputArtifacts: []
+#         Configuration:
+#           ProjectName: drom-promote-env
+#         RunOrder: 1
+#     ArtifactStore:
+#       Type: S3
+#       Location:
+#         Ref: ArtifactStoreBucket
+Outputs:
+  CodePipelineURL:
+    Value:
+      Fn::Join:
+      - ''
+      - - https://console.aws.amazon.com/codepipeline/home?region=
+        - Ref: AWS::Region
+        - "#/view/"
+        - Ref: AppPipeline
+
