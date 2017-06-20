@@ -6,7 +6,7 @@ Parameters:
     Type: String
     Description: S3 bucket to use for artifacts. Just bucket Name; not URL. IAM user
       should have access to the bucket.
-    Default: codepipeline-us-east-1-XXXXXXXXXXX
+    Default: my-test-dump
   SourceOutputArtifacts:
     Type: String
     Description: A name for our source output artifacts.
