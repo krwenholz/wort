@@ -2,15 +2,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: The Wort Pipeline
 Parameters:
-  ArtifactStoreBucket:
-    Type: String
-    Description: S3 bucket to use for artifacts. Just bucket Name; not URL. IAM user
-      should have access to the bucket.
-    Default: my-test-dump
-  SourceOutputArtifacts:
-    Type: String
-    Description: A name for our source output artifacts.
-    Default: source-output
   GitHubToken:
     NoEcho: 'true'
     Type: String
@@ -48,107 +39,30 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       Path: "/"
-      Policies:
-        - PolicyName: pipeline
-          PolicyDocument:
-            # TODO: this policy document should probably grant fewer permissions
-            Version: '2012-10-17'
-            Statement:
-            - Action:
-              - s3:GetObject
-              - s3:GetObjectVersion
-              - s3:GetBucketVersioning
-              Resource: "*"
-              Effect: Allow
-            - Action:
-              - s3:PutObject
-              Resource:
-              - arn:aws:s3:::codepipeline*
-              - arn:aws:s3:::elasticbeanstalk*
-              Effect: Allow
-            - Action:
-              - codecommit:CancelUploadArchive
-              - codecommit:GetBranch
-              - codecommit:GetCommit
-              - codecommit:GetUploadArchiveStatus
-              - codecommit:UploadArchive
-              Resource: "*"
-              Effect: Allow
-            - Action:
-              - codedeploy:CreateDeployment
-              - codedeploy:GetApplicationRevision
-              - codedeploy:GetDeployment
-              - codedeploy:GetDeploymentConfig
-              - codedeploy:RegisterApplicationRevision
-              Resource: "*"
-              Effect: Allow
-            - Action:
-              - elasticbeanstalk:*
-              - ec2:*
-              - elasticloadbalancing:*
-              - autoscaling:*
-              - cloudwatch:*
-              - s3:*
-              - sns:*
-              - cloudformation:*
-              - rds:*
-              - sqs:*
-              - ecs:*
-              - iam:PassRole
-              Resource: "*"
-              Effect: Allow
-            - Action:
-              - lambda:InvokeFunction
-              - lambda:ListFunctions
-              Resource: "*"
-              Effect: Allow
-            - Action:
-              - opsworks:CreateDeployment
-              - opsworks:DescribeApps
-              - opsworks:DescribeCommands
-              - opsworks:DescribeDeployments
-              - opsworks:DescribeInstances
-              - opsworks:DescribeStacks
-              - opsworks:UpdateApp
-              - opsworks:UpdateStack
-              Resource: "*"
-              Effect: Allow
-            - Action:
-              - cloudformation:CreateStack
-              - cloudformation:DeleteStack
-              - cloudformation:DescribeStacks
-              - cloudformation:UpdateStack
-              - cloudformation:CreateChangeSet
-              - cloudformation:DeleteChangeSet
-              - cloudformation:DescribeChangeSet
-              - cloudformation:ExecuteChangeSet
-              - cloudformation:SetStackPolicy
-              - cloudformation:ValidateTemplate
-              - iam:PassRole
-              Resource: "*"
-              Effect: Allow
-            - Action:
-              - codebuild:BatchGetBuilds
-              - codebuild:StartBuild
-              Resource: "*"
-              Effect: Allow
+      ManagedPolicyArns:
+      # TODO: create policy resources separately and then attach them here
+      - arn:aws:iam::aws:policy/AdministratorAccess
       AssumeRolePolicyDocument:
         Statement:
         - Effect: Allow
           Principal:
             Service:
             - codepipeline.amazonaws.com
-          Action:
-          - sts:AssumeRole
+          Action: sts:AssumeRole
+
+  ArtifactStoreBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: BucketOwnerFullControl
+
   AppPipeline:
     DependsOn:
     - PipelineRole
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      RoleArn:
-        Fn::GetAtt:
-        - PipelineRole
-        - Arn
+      RoleArn: !GetAtt PipelineRole.Arn
       ArtifactStore:
         Type: S3
         Location:
@@ -164,17 +78,12 @@ Resources:
             Version: '1'
             Provider: GitHub
           OutputArtifacts:
-          - Name:
-              Ref: SourceOutputArtifacts
+          - Name: source_output
           Configuration:
-            Owner:
-              Ref: GitHubUser
-            Repo:
-              Ref: Repo
-            Branch:
-              Ref: Branch
-            OAuthToken:
-              Ref: GitHubToken
+            Owner: !Ref GitHubUser
+            Repo: !Ref Repo
+            Branch: !Ref Branch
+            OAuthToken: !Ref GitHubToken
           RunOrder: 1
       - Name: Build
         Actions:
@@ -183,15 +92,42 @@ Resources:
             Category: Build
             Owner: AWS
             Provider: CodeBuild
-            Version: '1'
-          OutputArtifacts:
-          - Name: wort_build
+            Version: 1
           InputArtifacts:
-          - Name:
-              Ref: SourceOutputArtifacts
+          - Name: source_output
+          OutputArtifacts:
+          - Name: build_output
           Configuration:
-            ProjectName: wort
+            ProjectName: !Ref BuildProject
           RunOrder: 1
+
+  BuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      TimeoutInMinutes: 10
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: clojure:latest
+        Type: LINUX_CONTAINER
+      Name: !Sub ${AWS::StackName}BuildProject
+      ServiceRole: !Ref BuildRole
+      Source:
+        Type: CODEPIPELINE
+
+  BuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: codebuild.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
 # TODO: deploy said stack in pipeline
 #     - Name: Production
 #       Actions:
@@ -202,7 +138,7 @@ Resources:
 #           Version: '1'
 #           Provider: CloudFormation
 #         InputArtifacts:
-#         - Name: wort_build
+#         - Name: build_output
 #         OutputArtifacts: []
 #         Configuration:
 #           ProjectName: drom-promote-env
