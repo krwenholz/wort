@@ -20,35 +20,35 @@ Parameters:
     Description: Branch to use from Repo. Only the Name. not the URL
     Default: master
 Resources:
-# TODO: define a stack to use stack.yaml
-# CodeDeploySimpleStack:
-#   Type: AWS::CloudFormation::Stack
-#   Properties:
-#     TemplateURL: https://s3.amazonaws.com/stelligent-public/cloudformation-templates/github/labs/codepipeline/codedeploy-deployment.json
-#     TimeoutInMinutes: '60'
-#     Parameters:
-#       # RoleArn:
-#       # RoFn::GetAtt:
-#       # Ro- CodeDeployEC2InstancesStack
-#       # Ro- Outputs.CodeDeployTrustRoleARN
-#       Bucket:
-#         Ref: ArtifactStoreBucket
-#       Key:
-#         Ref: stack.yaml
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:
       Path: "/"
       ManagedPolicyArns:
-      # TODO: create policy resources separately and then attach them here
-      - arn:aws:iam::aws:policy/AdministratorAccess
+        # TODO: create policy resources separately and then attach them here
+        - arn:aws:iam::aws:policy/AdministratorAccess
       AssumeRolePolicyDocument:
         Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - codepipeline.amazonaws.com
-          Action: sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+
+  ProductionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: "/"
+      ManagedPolicyArns:
+        # TODO: create policy resources separately and then attach them here
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - cloudformation.amazonaws.com
+            Action: sts:AssumeRole
 
   ArtifactStoreBucket:
     Type: AWS::S3::Bucket
@@ -59,47 +59,67 @@ Resources:
 
   AppPipeline:
     DependsOn:
-    - PipelineRole
+      - PipelineRole
     Type: AWS::CodePipeline::Pipeline
     Properties:
       RoleArn: !GetAtt PipelineRole.Arn
       ArtifactStore:
         Type: S3
-        Location:
-          Ref: ArtifactStoreBucket
+        Location: !Ref ArtifactStoreBucket
       Stages:
-      - Name: Source
-        Actions:
-        - InputArtifacts: []
-          Name: Source
-          ActionTypeId:
-            Category: Source
-            Owner: ThirdParty
-            Version: '1'
-            Provider: GitHub
-          OutputArtifacts:
-          - Name: source_output
-          Configuration:
-            Owner: !Ref GitHubUser
-            Repo: !Ref Repo
-            Branch: !Ref Branch
-            OAuthToken: !Ref GitHubToken
-          RunOrder: 1
-      - Name: Build
-        Actions:
+        - Name: Source
+          Actions:
+            - InputArtifacts: []
+              Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: '1'
+                Provider: GitHub
+              OutputArtifacts:
+                - Name: source_output
+              Configuration:
+                Owner: !Ref GitHubUser
+                Repo: !Ref Repo
+                Branch: !Ref Branch
+                OAuthToken: !Ref GitHubToken
+              RunOrder: 1
         - Name: Build
-          ActionTypeId:
-            Category: Build
-            Owner: AWS
-            Provider: CodeBuild
-            Version: 1
-          InputArtifacts:
-          - Name: source_output
-          OutputArtifacts:
-          - Name: build_output
-          Configuration:
-            ProjectName: !Ref BuildProject
-          RunOrder: 1
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              InputArtifacts:
+                - Name: source_output
+              OutputArtifacts:
+                - Name: build_output
+              Configuration:
+                ProjectName: !Ref BuildProject
+              RunOrder: 1
+        - Name: Production
+          Actions:
+            - Name: PromoteEnvironment
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: '1'
+                Provider: CloudFormation
+              InputArtifacts:
+                - Name: BuildOutput
+              OutputArtifacts: []
+              Configuration:
+                ActionMode: REPLACE_ON_FAILURE
+                RoleArn: !GetAtt ProductionRole.Arn
+                StackName: !Sub ${AWS::StackName}ProductionStack
+                TemplatePath: BuildOuptut::stack.yaml
+                Capabilities: CAPABILITY_IAM
+                Parameters:
+                  - LambdaSourceBucket: !Ref ArtifactStoreBucket
+                  - LambdaSourceJar: wort/BuildOutput/wort-0.1.0-SNAPSHOT-standalone.jar
+              RunOrder: 1
 
   BuildProject:
     Type: AWS::CodeBuild::Project
@@ -128,32 +148,14 @@ Resources:
           Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
-# TODO: deploy said stack in pipeline
-#     - Name: Production
-#       Actions:
-#       - Name: PromoteEnvironment
-#         ActionTypeId:
-#           Category: Deploy
-#           Owner: AWS
-#           Version: '1'
-#           Provider: CloudFormation
-#         InputArtifacts:
-#         - Name: build_output
-#         OutputArtifacts: []
-#         Configuration:
-#           ProjectName: drom-promote-env
-#         RunOrder: 1
-#     ArtifactStore:
-#       Type: S3
-#       Location:
-#         Ref: ArtifactStoreBucket
+
 Outputs:
   CodePipelineURL:
     Value:
       Fn::Join:
-      - ''
-      - - https://console.aws.amazon.com/codepipeline/home?region=
-        - Ref: AWS::Region
-        - "#/view/"
-        - Ref: AppPipeline
+        - ''
+        - - https://console.aws.amazon.com/codepipeline/home?region=
+          - Ref: AWS::Region
+          - "#/view/"
+          - Ref: AppPipeline
 

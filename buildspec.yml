@@ -22,3 +22,5 @@ phases:
 artifacts:
   files:
     - functions/target/uberjar/wort-0.1.0-SNAPSHOT-standalone.jar
+    - stack.yaml
+  discard-paths: yes
