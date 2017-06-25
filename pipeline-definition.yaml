@@ -116,7 +116,9 @@ Resources:
                 StackName: !Sub ${AWS::StackName}ProductionStack
                 TemplatePath: BuildOutput::stack.yaml
                 Capabilities: CAPABILITY_IAM
-                ParameterOverrides: !Sub '{"LambdaSourceBucket": "${!Ref ArtifactStoreBucket}", "LambdaSourceJar": "wort/BuildOutput/wort-0.1.0-SNAPSHOT-standalone.jar"}'
+                ParameterOverrides:
+                  Fn::Sub: '{"LambdaSourceBucket": "${ArtifactStoreBucket}", "LambdaSourceJar": "${BuildOutput::lambda.jar}"}'
+                      #- { LambdaJarKey: !Ref "" }
               RunOrder: 1
 
   BuildProject:
