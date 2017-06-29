@@ -109,16 +109,19 @@ Resources:
                 Provider: CloudFormation
               InputArtifacts:
                 - Name: BuildOutput
+                - Name: SourceOutput
               OutputArtifacts: []
               Configuration:
                 ActionMode: REPLACE_ON_FAILURE
                 RoleArn: !GetAtt ProductionRole.Arn
                 StackName: !Sub ${AWS::StackName}ProductionStack
-                TemplatePath: BuildOutput::stack.yaml
+                TemplatePath: SourceOutput::stack.yaml
                 Capabilities: CAPABILITY_IAM
-                ParameterOverrides:
-                  Fn::Sub: '{"LambdaSourceBucket": "${ArtifactStoreBucket}", "LambdaSourceJar": "${BuildOutput::lambda.jar}"}'
-                      #- { LambdaJarKey: !Ref "" }
+                ParameterOverrides: |
+                  {
+                    "LambdaSourceBucket": {"Fn::GetArtifactAtt": ["BuildOutput", "BucketName"]},
+                    "LambdaJarKey": {"Fn::GetArtifactAtt": ["BuildOutput", "ObjectKey"]}
+                  }
               RunOrder: 1
 
   BuildProject:

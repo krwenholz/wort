@@ -24,5 +24,4 @@ phases:
 artifacts:
   files:
     - lambda.jar
-    - stack.yaml
   discard-paths: yes
