@@ -19,9 +19,10 @@ phases:
   post_build:
     commands:
       - cd $SRC_HOME
-      - cp functions/target/uberjar/wort-0.1.0-SNAPSHOT-standalone.jar lambda.jar
+      - mkdir lib
+      - cp functions/target/uberjar/wort-0.1.0-SNAPSHOT-standalone.jar lib/lambda.jar
       - echo Build completed on `date`
 artifacts:
   files:
-    - lambda.jar
+    - lib/lambda.jar
     - stack.yaml

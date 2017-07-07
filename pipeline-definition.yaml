@@ -115,11 +115,11 @@ Resources:
                 ActionMode: REPLACE_ON_FAILURE
                 RoleArn: !GetAtt ProductionRole.Arn
                 StackName: !Sub ${AWS::StackName}ProductionStack
-                TemplatePath: SourceOutput::stack.yaml
+                TemplatePath: BuildOutput::stack.yaml
                 Capabilities: CAPABILITY_IAM
                 ParameterOverrides: |
                   {
-                    "LambdaSourceBucket": {"Fn::GetArtifactAtt": ["BuildOutput", "BucketName"]},
+                    "LambdaSourceBucket": {"Fn::"{"Fn::GetArtifactAtt": ["BuildOutput", "BucketName"]},
                     "LambdaJarKey": {"Fn::GetArtifactAtt": ["BuildOutput", "ObjectKey"]}
                   }
               RunOrder: 1
