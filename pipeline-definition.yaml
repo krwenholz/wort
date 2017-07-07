@@ -119,7 +119,7 @@ Resources:
                 Capabilities: CAPABILITY_IAM
                 ParameterOverrides: |
                   {
-                    "LambdaSourceBucket": {"Fn::GetArtifactAtt": ["BuildOutput", "BucketName"]},
+                    "LambdaSourceBucket": {"Fn::"{"Fn::GetArtifactAtt": ["BuildOutput", "BucketName"]},
                     "LambdaJarKey": {"Fn::GetArtifactAtt": ["BuildOutput", "ObjectKey"]}
                   }
               RunOrder: 1
