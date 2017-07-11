@@ -18,7 +18,11 @@ phases:
       - lein uberjar
   post_build:
     commands:
+      - cd $SRC_HOME
+      - mkdir lib
+      - cp functions/target/uberjar/wort-0.1.0-SNAPSHOT-standalone.jar lib/lambda.jar
       - echo Build completed on `date`
 artifacts:
   files:
-    - functions/target/uberjar/wort-0.1.0-SNAPSHOT-standalone.jar
+    - lib/lambda.jar
+    - stack.yaml
