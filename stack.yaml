@@ -10,7 +10,7 @@ Parameters:
     Description: The name of the S3 bucket that contains the source code of your Lambda
       function.
     Type: String
-  LambdaSourceJar:
+  LambdaJarKey:
     Description: The location and name of your source code .jar file.
     Type: String
     Default: lambda.jar
@@ -73,7 +73,7 @@ Resources:
         S3Bucket:
           Ref: LambdaSourceBucket
         S3Key:
-          Ref: LambdaSourceJar
+          Ref: LambdaJarKey
       Description: Frontend handler
       Handler: wort.core::handler
       MemorySize: 512
@@ -105,7 +105,7 @@ Resources:
   RestApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
-      Name: API Gateway Wort
+      Name: !Sub ${AWS::StackName}
   AutoSalutationModel:
     Type: AWS::ApiGateway::Model
     Properties:
