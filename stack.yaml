@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Lambda and API Gateway
 Parameters:
-  MyBucketName:
-    Default: "my.new.bucket.name"
+  WebsiteBucketName:
+    Default: "wort-frontend"
     Description: "The name of the bucket.  A good name is the name of your website. ex: example.com"
     Type: String
     ConstraintDescription: "You must enter a name here."
