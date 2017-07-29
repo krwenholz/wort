@@ -15,6 +15,14 @@ Parameters:
     Type: String
     Default: lambda.jar
 Resources:
+  MyCustomResource:
+    Type: "Custom::TestLambdaCrossStackRef"
+    Properties:
+      ServiceToken:
+        !Sub |
+          arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${LambdaFunctionName}
+      StackName:
+        Ref: "NetworkStackName"
   S3Bucket:
     Type: "AWS::S3::Bucket"
     Properties:
