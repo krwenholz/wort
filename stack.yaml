@@ -105,7 +105,7 @@ Resources:
       Code:
         S3Bucket:
           Ref: LambdaCopyBucket
-          #TODO: How are these passed in as parameters? Up top somewhere?
+          #TODO: What copies the Lambda into the bucket to start with...
         S3Key:
           Ref: LambdaCopyKey
       Description: Frontend handler
