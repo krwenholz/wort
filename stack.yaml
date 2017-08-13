@@ -16,13 +16,22 @@ Parameters:
     Default: lambda.jar
 Resources:
   MyCustomResource:
-    Type: "Custom::TestLambdaCrossStackRef"
+    DependsOn:
+    - S3CopyLambda
+    Type: "Custom::LambdaFrontEndCopier"
     Properties:
       ServiceToken:
         !Sub |
-          arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${LambdaFunctionName}
-      StackName:
-        Ref: "NetworkStackName"
+          arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${S3CopyLambda}
+      #TODO: How do I reference this to my named lambda????
+      S3BucketInput:
+        #holding build output Bucket
+        Ref: LambdaSourceBucket
+      S3KeyInput:
+        # pointing to zip file from build output that is in S3 bucket
+        Ref: LambdaJarKey
+      S3BucketDestination:
+        Ref: WebsiteBucketName
   S3Bucket:
     Type: "AWS::S3::Bucket"
     Properties:
@@ -89,6 +98,26 @@ Resources:
         Fn::GetAtt:
         - LambdaRole
         - Arn
+      Runtime: java8
+      Timeout: 15 # seconds
+  S3CopyLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: LambdaCopyBucket
+        S3Key:
+          #TODO: What does this even need as its input?
+          Ref: LambdaCopyKey
+      Description: Frontend handler
+          #TODO new handler
+      Handler: wort.core::handler
+      MemorySize: 512
+      Role:
+        Fn::GetAtt:
+        - LambdaRole
+        - Arn
+          #TODO:#Whats the runtime for node again???
       Runtime: java8
       Timeout: 15 # seconds
   LambdaPermission:
