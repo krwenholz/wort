@@ -104,18 +104,18 @@ Resources:
     Properties:
       Code:
         S3Bucket:
-          Ref: LambdaCopyBucket
-          #TODO: What copies the Lambda into the bucket to start with...
+          Ref: LambdaSourceBucket
         S3Key:
-          Ref: LambdaCopyKey
+          Ref: LambdaJarKey
       Description: Frontend handler
-      Handler: wort.core::handler
+      #TODO: Rename this
+      Handler: LambdaCopier.handler
       MemorySize: 512
       Role:
         Fn::GetAtt:
         - LambdaRole
         - Arn
-      Runtime: java8
+      Runtime: nodejs6.10
       Timeout: 15 # seconds
   LambdaPermission:
     Type: AWS::Lambda::Permission
