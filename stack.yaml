@@ -31,7 +31,7 @@ Resources:
             Action:
             - logs:*
             Resource: arn:aws:logs:*:*:*
-  Lambda:
+  PhraseBuildingLambda:
     Type: AWS::Lambda::Function
     Properties:
       Code:
@@ -40,7 +40,7 @@ Resources:
         S3Key:
           Ref: LambdaJarKey
       Description: Frontend handler
-      Handler: wort.core::handler
+      Handler: wort.core.PhraseBuilder
       MemorySize: 512
       Role:
         Fn::GetAtt:
@@ -54,7 +54,7 @@ Resources:
       Action: lambda:invokeFunction
       FunctionName:
         Fn::GetAtt:
-        - Lambda
+        - PhraseBuildingLambda
         - Arn
       Principal: apigateway.amazonaws.com
       SourceArn:
@@ -65,46 +65,46 @@ Resources:
           - ":"
           - Ref: AWS::AccountId
           - ":"
-          - Ref: RestApi
+          - Ref: PhraseBuildingRestApi
           - "/*"
-  RestApi:
+  PhraseBuildingRestApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
       Name: !Sub ${AWS::StackName}
-  AutoSalutationModel:
+  PhraseBuildingModel:
     Type: AWS::ApiGateway::Model
     Properties:
       ContentType: application/json
-      Name: AutoSalutation
+      Name: PhraseBuilding
       RestApiId:
-        Ref: RestApi
+        Ref: PhraseBuildingRestApi
       Schema:
         "$schema": http://json-schema.org/draft-04/schema#
-        title: AutoSalutation
+        title: PhraseBuilding
         type: object
         additionalProperties: false
         properties:
-          salutation:
+          phrase:
             type: string
         required:
-        - salutation
-  AutoSalutationResource:
+        - phrase
+  PhraseBuildingResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId:
-        Ref: RestApi
+        Ref: PhraseBuildingRestApi
       ParentId:
         Fn::GetAtt:
-        - RestApi
+        - PhraseBuildingRestApi
         - RootResourceId
-      PathPart: auto_salutation
-  AutoSalutationGet:
+      PathPart: sound_concatenation
+  PhraseBuildingGet:
     Type: AWS::ApiGateway::Method
     Properties:
       RestApiId:
-        Ref: RestApi
+        Ref: PhraseBuildingRestApi
       ResourceId:
-        Ref: AutoSalutationResource
+        Ref: PhraseBuildingResource
       HttpMethod: GET
       AuthorizationType: NONE
       Integration:
@@ -117,23 +117,23 @@ Resources:
             - Ref: AWS::Region
             - ":lambda:path/2015-03-31/functions/"
             - Fn::GetAtt:
-              - Lambda
+              - PhraseBuildingLambda
               - Arn
             - "/invocations"
         IntegrationResponses:
         - ResponseTemplates:
-            application/json: "{\"salutation\": \"$input.body\"}"
+            application/json: "{\"phrase\": \"$input.body\"}"
           StatusCode: 200
         PassthroughBehavior: NEVER
         RequestTemplates:
           application/json: |
-            "$input.params('name')"
+            "{\"phrase\": \"$input.params('phrase')\"}"
       RequestParameters:
-        method.request.querystring.name: true
+        method.request.querystring.phrase: true
       MethodResponses:
       - ResponseModels:
           application/json:
-            Ref: AutoSalutationModel
+            Ref: PhraseBuildingModel
         StatusCode: 200
       - ResponseModels:
           application/json: Empty
@@ -141,5 +141,5 @@ Resources:
 Outputs:
   ApiId:
     Value:
-      Ref: RestApi
+      Ref: PhraseBuildingRestApi
 

@@ -26,3 +26,4 @@ artifacts:
   files:
     - lib/lambda.jar
     - stack.yaml
+    - resources/*
