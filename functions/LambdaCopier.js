@@ -28,7 +28,7 @@ exports.handler = function(event, context) {
                 context.fail("Error writing file: " + err);
             }
             else {
-                console.log("Successfully copied " + buckets.in.Key + " to " + buckets.out.Bucket + " at " + buckets.out.Key);
+                console.log("Successfully copied frontend files");
                 context.succeed();
             }
         });
