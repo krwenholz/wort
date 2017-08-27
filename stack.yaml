@@ -150,7 +150,7 @@ Resources:
                         }
 
                         console.log("Successfully copied frontend files");
-                        response.send(event, context, response.SUCCESS, data);
+                        response.send(event, context, response.SUCCESS, {});
                         context.succeed();
                     });
                 });

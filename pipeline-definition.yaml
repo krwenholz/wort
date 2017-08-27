@@ -114,7 +114,7 @@ Resources:
               Configuration:
                 ActionMode: REPLACE_ON_FAILURE
                 RoleArn: !GetAtt ProductionRole.Arn
-                StackName: !Sub ${AWS::StackName}ProductionStack
+                StackName: !Sub ${AWS::StackName}-Prod
                 TemplatePath: BuildOutput::stack.yaml
                 Capabilities: CAPABILITY_IAM
                 ParameterOverrides: |
