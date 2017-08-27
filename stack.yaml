@@ -114,6 +114,7 @@ Resources:
             var zlib = require('zlib');
             var AWS  = require('aws-sdk');
             var S3   = new AWS.S3();
+            var response = require('cfn-response');
 
             var buckets = {
                 in: {
@@ -149,6 +150,7 @@ Resources:
                         }
 
                         console.log("Successfully copied frontend files");
+                        response.send(event, context, response.SUCCESS, data);
                         context.succeed();
                     });
                 });
