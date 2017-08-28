@@ -110,7 +110,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        ZipFile: >
+        ZipFi
           exports.handler = function(event, context) {
               var zlib = require('zlib');
               var AWS  = require('aws-sdk');
