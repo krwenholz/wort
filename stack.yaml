@@ -111,11 +111,11 @@ Resources:
     Properties:
       Code:
         ZipFile: >
+          var response = require('cfn-response');
           exports.handler = function(event, context) {
               var zlib = require('zlib');
               var AWS  = require('aws-sdk');
               var S3   = new AWS.S3();
-              var response = require('cfn-response');
               var buckets = {
                   in: {
                       "Bucket": event.ResourceProperties.S3BucketInput,
