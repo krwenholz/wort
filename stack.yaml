@@ -138,8 +138,13 @@ Resources:
                           response.send(event, context, response.FAILURE, {});
                           return;
                       }
-                      buckets.out.body = result;
-                      S3.putObject(buckets.out, function(err, data) {
+                      const lambda_data = {
+                          Body: result,
+                          Bucket: buckets.out.Bucket,
+                          Key: buckets.out.Key,
+                          ContentType: 'content-type'
+                      };
+                      S3.putObject(lambda_data, function(err, data) {
                           if (err) {
                               console.log("Couldn't write to S3 bucket " + buckets.out.Bucket);
                               context.fail("Error writing file: " + err);
