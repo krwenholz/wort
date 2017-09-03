@@ -150,6 +150,8 @@ Resources:
                       });
                   });
               });
+              response.send(event, context, response.SUCCESS, {});
+              context.succeed();
           };
       Description: Frontend handler
       Handler: index.handler
