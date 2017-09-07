@@ -7,7 +7,6 @@
                  [org.clojure/data.json "0.2.6"]
                  [com.amazonaws/aws-lambda-java-core "1.0.0"]
                  [uswitch/lambada "0.1.2"]
-                 [org.craigandera/dynne "0.4.1"]
                  [pjstadig/humane-test-output "0.8.2"]]
   :injections [(require 'pjstadig.humane-test-output)
                (pjstadig.humane-test-output/activate!)]

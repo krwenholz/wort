@@ -127,7 +127,7 @@ Resources:
         PassthroughBehavior: NEVER
         RequestTemplates:
           application/json: |
-            "{\"phrase\": \"$input.params('phrase')\"}"
+            {"phrase": "$input.params('phrase')"}
       RequestParameters:
         method.request.querystring.phrase: true
       MethodResponses:
