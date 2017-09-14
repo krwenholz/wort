@@ -14,7 +14,7 @@
   :injections [(require 'pjstadig.humane-test-output)
                (pjstadig.humane-test-output/activate!)]
   :plugins [[lein-cljfmt "0.5.6"]
-	    [lein-ring "0.9.7"]]
+	    [lein-ring "0.12.1"]]
   :main ^:skip-aot wort.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
