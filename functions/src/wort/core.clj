@@ -21,16 +21,16 @@
   (filter #(> (count %) 0) (str/split string #"[^\w]+")))
 
 (defn grab-sound
-	"Fetches the sound for a word."
-	[word]
+  "Fetches the sound for a word."
+  [word]
   (AudioSystem/getAudioInputStream (io/file "../resources/a-team_crazy_fool_x.wav")))
 
 (defn append-sound
   [sound1 sound2]
   (AudioInputStream.
-    (SequenceInputStream. sound1 sound2)
-    (.getFormat sound1)
-    (+ (.getFrameLength sound1) (.getFrameLength sound2))))
+   (SequenceInputStream. sound1 sound2)
+   (.getFormat sound1)
+   (+ (.getFrameLength sound1) (.getFrameLength sound2))))
 
 (defn write-audio-stream
   [out-stream audio]
@@ -56,4 +56,4 @@
 
 (deflambdafn wort.core.PhraseBuilder
   [in out ctx]
-    (build-audio-phrase in out))
+  (build-audio-phrase in out))
