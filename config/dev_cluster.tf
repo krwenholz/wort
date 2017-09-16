@@ -1,4 +1,10 @@
-// Configure the Vultr provider. Uses API key in VULTR_API_KEY.
+// Provider variables with -var=vultr_key=FOO -var=ssh_key_name=BAR...
+variable "vultr_key" {}
+variable "ssh_key_name" {}
+
+provider "vultr" {
+  api_key = "${var.vultr_key}"
+}
 
 // Find the ID of the Miami region (cheap instances here at time of writing).
 data "vultr_region" "miami" {
@@ -34,7 +40,7 @@ data "vultr_plan" "starter" {
 data "vultr_ssh_key" "Mac" {
   filter {
     name   = "name"
-    values = ["Mac"]
+    values = ["${var.ssh_key_name}"]
   }
 }
 
