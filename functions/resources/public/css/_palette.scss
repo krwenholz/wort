@@ -1,0 +1,9 @@
+$main-colors: (
+    'primary': #333,
+    'accent': #8e3329,
+    'background': cream
+);
+
+@function palette($key) {
+    @return map-get($main-colors, $key);
+}
