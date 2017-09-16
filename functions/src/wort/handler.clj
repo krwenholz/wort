@@ -2,6 +2,7 @@
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.util.response :as resp]
+            [wort.core :as core]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]))
 
 (defroutes app-routes
