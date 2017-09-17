@@ -12,6 +12,15 @@ FIXME: explanation
 
     $ java -jar wort-0.1.0-standalone.jar [args]
 
+## Starting ring-server (inside folder containing project.clj)
+
+    $ lein ring server 3000
+
+## Building Sass
+
+    $ node-sass -wr ~/wort/functions/resources/public/css/scss \
+          --output ~/wort/functions/resources/public/css --output-style compressed
+
 ## Options
 
 FIXME: listing of options this app accepts.
