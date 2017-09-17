@@ -9,7 +9,7 @@
   (GET "/" []
     (resp/content-type (resp/resource-response "index.html" {:root "public"}) "text/html"))
   (GET "/sound" []
-    (resp/response "../resources/a-team_crazy_fool_x.wav"))
+    (resp/file-response "../resources/a-team_crazy_fool_x.wav"))
   (route/resources "/")
   (route/not-found "Not Found"))
 
