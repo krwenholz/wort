@@ -11,7 +11,7 @@
                  [compojure "1.6.0"]
                  [deraen/sass4clj "0.3.1"]
                  [ring/ring-defaults "0.2.1"]]
-  :sass4clj {:source-paths ["resources/public/css/scss"]
+  :sass {:source-paths ["resources/public/css/scss"]
              :target-path "resources/public/css"
              :output-style :compressed}
   :ring {:handler wort.handler/app}
