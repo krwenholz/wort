@@ -16,10 +16,10 @@ FIXME: explanation
 
     $ lein ring server 3000
 
-## Building Sass
+## Building Sass (inside folder containing project.clj)
+# See project.clj for input / output paths for scss files
 
-    $ node-sass -wr ~/wort/functions/resources/public/css/scss \
-          --output ~/wort/functions/resources/public/css --output-style compressed
+    $ lein sass4clj auto
 
 ## Options
 
