@@ -10,7 +10,7 @@
                  [pjstadig/humane-test-output "0.8.2"]
                  [compojure "1.6.0"]
                  [deraen/sass4clj "0.3.1"]
-                 [org.slf4j/slf4j-log4j12 "1.7.9"]
+                 [org.slf4j/slf4j-simple "1.7.21"]
                  [ring/ring-defaults "0.2.1"]]
   :sass {:source-paths ["resources/public/css/scss"]
              :target-path "resources/public/css"
